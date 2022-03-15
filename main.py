@@ -15,9 +15,17 @@ from termcolor import colored, RESET
 from datetime import datetime
 from func_timeout import func_set_timeout, FunctionTimedOut
 from requests.adapters import HTTPAdapter
+from urllib.parse import urlparse
+
 dt=datetime.now()
+check_success_domain = {}
 # Channel	Group	Source	Link    Description
 # Description 应当对该源的已知参数进行标注（如码率，HDR）
+
+import io
+import sys
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf8') 
+
 
 SKIP_FFPROBE_MESSAGES = [re.compile(pattern) for pattern in (
 	'Last message repeated',
@@ -44,6 +52,13 @@ def check_channel(clist,num):
     uri = clist[3]
     requests.adapters.DEFAULT_RETRIES = 3
     try:
+        domain = urlparse(uri).netloc
+        if domain not in check_success_domain:
+            check_success_domain[domain] = False
+        elif check_success_domain[domain]:
+            return [1920,1080,'']
+        else:
+            return False
         r = requests.get(clist[3], timeout=1.5) # 先测能不能正常访问
         if(r.status_code == requests.codes.ok):
             #ffprobe = FFprobe(inputs={uri: '-v warning'})
@@ -57,52 +72,53 @@ def check_channel(clist,num):
             #else: # 查视频信息
             cdata = get_stream(num, clist, uri)
             if cdata:
-                flagAudio = 0
-                flagVideo = 0
-                flagHDR = 0
-                flagHEVC = 0
-                vwidth = 0
-                vheight = 0
-                for i in cdata['streams']:
-                    if i['codec_type'] == 'video':
-                        flagVideo = 1
-                        if 'color_space' in i:
-                            # https://www.reddit.com/r/ffmpeg/comments/kjwxm9/how_to_detect_if_video_is_hdr_or_sdr_batch_script/
-                            if 'bt2020' in i['color_space']:
-                                flagHDR = 1
-                        if i['codec_name'] == 'hevc':
-                            flagHEVC = 1
-                        if vwidth <= i['coded_width']: # 取最高分辨率
-                            vwidth = i['coded_width']
-                            vheight = i['coded_height']
-                    elif i['codec_type'] == 'audio':
-                        flagAudio = 1
-                if flagAudio == 0:
-                    print('[{}] {}({}) Error: Video Only!'.format(str(num), clist[0], clist[2]))
-                    return False
-                if flagVideo == 0:
-                    print('[{}] {}({}) Error: Audio Only!'.format(str(num), clist[0], clist[2]))
-                    return False
-                if (vwidth == 0) or (vheight == 0):
-                    print('[{}] {}({}) Error: {}x{}'.format(str(num), clist[0], clist[2],vwidth,vheight))
+                check_success_domain[domain] = True
+                # flagAudio = 0
+                # flagVideo = 0
+                # flagHDR = 0
+                # flagHEVC = 0
+                # vwidth = 0
+                # vheight = 0
+                # for i in cdata['streams']:
+                #     if i['codec_type'] == 'video':
+                #         flagVideo = 1
+                #         if 'color_space' in i:
+                #             # https://www.reddit.com/r/ffmpeg/comments/kjwxm9/how_to_detect_if_video_is_hdr_or_sdr_batch_script/
+                #             if 'bt2020' in i['color_space']:
+                #                 flagHDR = 1
+                #         if i['codec_name'] == 'hevc':
+                #             flagHEVC = 1
+                #         if vwidth <= i['coded_width']: # 取最高分辨率
+                #             vwidth = i['coded_width']
+                #             vheight = i['coded_height']
+                #     elif i['codec_type'] == 'audio':
+                #         flagAudio = 1
+                # if flagAudio == 0:
+                #     print('[{}] {}({}) Error: Video Only!'.format(str(num), clist[0], clist[2]))
+                #     return False
+                # if flagVideo == 0:
+                #     print('[{}] {}({}) Error: Audio Only!'.format(str(num), clist[0], clist[2]))
+                #     return False
+                # if (vwidth == 0) or (vheight == 0):
+                #     print('[{}] {}({}) Error: {}x{}'.format(str(num), clist[0], clist[2],vwidth,vheight))
 
-                if flagHDR == 0:
-                    print('[{}] {}({}) PASS: {}*{}'.format(str(num), clist[0], clist[2], vwidth, vheight))
-                    return [vwidth,vheight,'']
-                if flagHDR == 1:
-                    print('[{}] {}({}) PASS(HDR Enabled): {}*{}'.format(str(num), clist[0], clist[2], vwidth, vheight))
-                    return [vwidth,vheight,'HDR']
-                if flagHEVC == 1: # https://news.ycombinator.com/item?id=19389496  默认有HDR的算HEVC
-                    print('[{}] {}({}) PASS(HEVC Enabled): {}*{}'.format(str(num), clist[0], clist[2], vwidth, vheight))
-                    return [vwidth,vheight,'HEVC']
+                # if flagHDR == 0:
+                #     print('[{}] {}({}) PASS: {}*{}'.format(str(num), clist[0], clist[2], vwidth, vheight))
+                #     return [vwidth,vheight,'']
+                # if flagHDR == 1:
+                #     print('[{}] {}({}) PASS(HDR Enabled): {}*{}'.format(str(num), clist[0], clist[2], vwidth, vheight))
+                #     return [vwidth,vheight,'HDR']
+                # if flagHEVC == 1: # https://news.ycombinator.com/item?id=19389496  默认有HDR的算HEVC
+                #     print('[{}] {}({}) PASS(HEVC Enabled): {}*{}'.format(str(num), clist[0], clist[2], vwidth, vheight))
+                #     return [vwidth,vheight,'HEVC']
             else:
                 return False
         else:
-            print('[{}] {}({}) Error:{}'.format(str(num), clist[0], clist[2], str(r.status_code)))
+            print('[{}] {}({})  {} Error:{}'.format(str(num), clist[0], clist[2], uri,str(r.status_code)))
             return False
     except Exception as e:
         #traceback.print_exc()
-        print('[{}] {}({}) Error:{}'.format(str(num), clist[0], clist[2], str(e)))
+        print('[{}] {}({}) {} Error:{}'.format(str(num), clist[0], clist[2],uri, str(e)))
         return False
 
 def print_info():
@@ -140,14 +156,14 @@ def main():
     # times = fulltimes # 有时间后缀
     times = '' # 无时间后缀
     # 清空旧文件
-    rm_files('groups',1)
-    rm_files('merged.txt',2)
-    rm_files('merged-simple.txt',2)
-    with open('data.csv' ) as f:
+    rm_files('D:\\code\\python\\myiptv\\utf8\\groups',1)
+    rm_files('D:\\code\\python\\myiptv\\utf8\\merged.txt',2)
+    rm_files('D:\\code\\python\\myiptv\\utf8\\merged-simple.txt',2)
+    with open('D:\\code\\python\\myiptv\\utf8\\data.csv' ,encoding='utf8') as f:
         f_csv = csv.reader(f)
         headers = next(f_csv)
         num = 1
-        with open('data{}.csv'.format(fulltimes), 'a+' ) as f0: # 写入检测后新data
+        with open('D:\\code\\python\\myiptv\\utf8\\data{}.csv'.format(fulltimes), 'a+' ,encoding='utf8') as f0: # 写入检测后新data
             print('Channel,Group,Source,Link', file=f0)
             for row in f_csv:
                 try:
@@ -162,15 +178,15 @@ def main():
                     print('[{}] {}({}) Error:{}'.format(str(num), row[0], row[2], str(e)))
                     ret = False
                 if(ret): # 通过，写入
-                    with open('groups/{}{}.txt'.format(row[1],times), 'a+') as f1:
+                    with open('D:\\code\\python\\myiptv\\utf8\\groups/{}{}.txt'.format(row[1],times), 'a+',encoding='utf8') as f1:
                         # print('{}({}{}-{}*{}),{}'.format(row[0],row[2],getdes(row[4]),ret[0],ret[1],row[3]), file=f1)
                         print('{}({}-{}P{}),{}'.format(row[0],row[2],ret[1],ret[2],row[3]), file=f1)
-                    with open('groups/{}-simple{}.txt'.format(row[1],times), 'a+') as f1:
+                    with open('D:\\code\\python\\myiptv\\utf8\\groups/{}-simple{}.txt'.format(row[1],times), 'a+',encoding='utf8') as f1:
                         print('{},{}'.format(row[0],row[3]), file=f1)
-                    with open('merged{}.txt'.format(times),'a+') as f1:
+                    with open('D:\\code\\python\\myiptv\\utf8\\merged{}.txt'.format(times),'a+',encoding='utf8') as f1:
                         # print('{}({}{}-{}*{}),{}'.format(row[0],row[2],getdes(row[4]),ret[0],ret[1],row[3]), file=f1)
                         print('{}({}-{}P{}),{}'.format(row[0],row[2],ret[1],ret[2],row[3]), file=f1)
-                    with open('merged-simple{}.txt'.format(times),'a+') as f1:
+                    with open('D:\\code\\python\\myiptv\\utf8\\erged-simple{}.txt'.format(times),'a+',encoding='utf8') as f1:
                         print('{},{}'.format(row[0],row[3]), file=f1)
                     print('{},{},{},{}'.format(row[0],row[1],row[2],row[3]), file=f0)
                     Total = Total + 1
