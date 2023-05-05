@@ -4,6 +4,10 @@ CCTV1,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226006/index.m3u8
 CCTV1,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226003/index.m3u8
 CCTV1,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226004/index.m3u8
 CCTV1,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226001/index.m3u8
+CCTV2,http://[2409:8087:4402:20:1:1216:401:35]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226306/index.m3u8
+CCTV2,http://[2409:8087:4400:20:1:70f:1011:1b]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226466/index.m3u8
+CCTV2,http://[2409:8087:4402:20:1:1216:401:43]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226569/index.m3u8
+CCTV2,http://[2409:8087:4402:20:1:1216:401:2e]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221227165/index.m3u8
 CCTV3,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226021/index.m3u8
 CCTV4,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226428/index.m3u8
 CCTV5,http://ottrrs.hl.chinamobile.com/PLTV/88888888/224/3221226019/index.m3u8
@@ -97,10 +101,6 @@ CCTV1,http://[2409:8087:4402:20:1:1216:401:36]/iptv.cdn.ha.chinamobile.com/PLTV/
 CCTV1,http://[2409:8087:4402:20:1:1216:401:14]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226459/index.m3u8
 CCTV1,http://[2409:8087:4402:20:1:1216:401:3e]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226706/index.m3u8
 CCTV1,http://[2409:8087:4402:20:1:1216:401:2d]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221227163/index.m3u8
-CCTV2,http://[2409:8087:4402:20:1:1216:401:35]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226306/index.m3u8
-CCTV2,http://[2409:8087:4400:20:1:70f:1011:1b]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226466/index.m3u8
-CCTV2,http://[2409:8087:4402:20:1:1216:401:43]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226569/index.m3u8
-CCTV2,http://[2409:8087:4402:20:1:1216:401:2e]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221227165/index.m3u8
 CCTV3,http://[2409:8087:4402:20:1:1216:401:36]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226308/index.m3u8
 CCTV3,http://[2409:8087:4400:20:1:70f:1011:1b]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226461/index.m3u8
 CCTV3,http://[2409:8087:4402:20:1:1216:401:36]/iptv.cdn.ha.chinamobile.com/PLTV/88888888/224/3221226614/index.m3u8
